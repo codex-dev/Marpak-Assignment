@@ -1,70 +1,131 @@
 package com.marpak.gmpolygon;
 
 import android.os.Bundle;
+import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.RoundCap;
+import com.marpak.gmpolygon.databinding.ActivityMainBinding;
+import com.marpak.gmpolygon.enums.ButtonAction;
 
-// Implement OnMapReadyCallback.
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final int POLYGON_FILL_COLOR = 0x800000ff;
-    private static final int LINE_COLOR = 0xff0000ff;
-    private static final int DIVIDER_COLOR = 0xffffff00;
-    private static final int LINE_WIDTH_PX = 8;
+    private GoogleMap googleMap;
+    private GoogleMap.OnMapClickListener mapClickListener;
+    private final List<LatLng> polylinePoints = new ArrayList<>();
+    private Polyline polyline;
+    private Polygon polygon;
+
+    private ActivityMainBinding binding;
+    private ButtonPalette buttonPalette;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Set the layout file as the content view.
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
         // Get a handle to the fragment and register the callback.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(R.id.fragMap);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
+        buttonPalette = new ButtonPalette(binding.buttonLayout);
     }
 
     // Get a handle to the GoogleMap object and display marker.
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Polygon polygon = googleMap.addPolygon(new PolygonOptions().clickable(true)
-                .add(
-                        new LatLng(-31.673, 128.892),
-                        new LatLng(-31.952, 115.857),
-                        new LatLng(-17.785, 122.258),
-                        new LatLng(-12.4258, 130.7932)));
-        polygon.setTag("SeLecTioN");
-        polygon.setStrokeWidth(LINE_WIDTH_PX);
-        polygon.setStrokeColor(LINE_COLOR);
-        polygon.setFillColor(POLYGON_FILL_COLOR);
+    public void onMapReady(@NonNull GoogleMap map) {
+        googleMap = map;
 
-        // cross line
-        Polyline polyline = googleMap.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(new LatLng(-31.952, 115.857),
-                        new LatLng(-12.4258, 130.7932)));
-        polyline.setWidth(LINE_WIDTH_PX);
-        polyline.setColor(LINE_COLOR);
+        mapClickListener = this::addPoint;
+
+        binding.btnDrawPolygon.setOnClickListener(view -> {
+            if (buttonPalette.getCurrentAction() == ButtonAction.CLEAR_DRAWINGS) {
+                buttonPalette.setAction(ButtonAction.START_DRAWING_SHAPE);
+
+                // start collecting click points
+                polylinePoints.clear();
+                googleMap.setOnMapClickListener(mapClickListener);
+
+            } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_SHAPE) {
+                buttonPalette.setAction(ButtonAction.STOP_DRAWING_SHAPE);
+
+                // stop collecting click points and draw polygon
+                drawPolygon();
+                polylinePoints.clear();
+                googleMap.setOnMapClickListener(null);
+            }
+        });
+
+        binding.btnDrawCrossLine.setOnClickListener(view -> {
+            if (buttonPalette.getCurrentAction() == ButtonAction.STOP_DRAWING_SHAPE) {
+                buttonPalette.setAction(ButtonAction.START_DRAWING_CROSS_LINE);
+
+                // start collecting click points
+                polylinePoints.clear();
+                googleMap.setOnMapClickListener(mapClickListener);
+
+            } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_CROSS_LINE) {
+                buttonPalette.setAction(ButtonAction.STOP_DRAWING_CROSS_LINE);
+
+                // stop collecting click points and draw cross line
+                polylinePoints.clear();
+                googleMap.setOnMapClickListener(null);
+            }
+        });
+
+        binding.btnDivideCrossLine.setOnClickListener(view -> {
+            if (buttonPalette.getCurrentAction() == ButtonAction.STOP_DRAWING_CROSS_LINE) {
+                // TODO get user input via an prompt and divide the cross line
+                buttonPalette.setAction(ButtonAction.DIVIDE_CROSS_LINE);
+            }
+        });
+
+        binding.btnClearDrawings.setOnClickListener(view -> {
+            polygon.remove();
+            polyline.remove();
+
+            buttonPalette.setAction(ButtonAction.CLEAR_DRAWINGS);
+        });
+    }
+
+    private void addPoint(LatLng latLng) {
+        polylinePoints.add(latLng);
+        if (polyline != null) {
+            // remove existing polyline from map and add new polyline with updated points
+            polyline.remove();
+        }
+        polyline = googleMap.addPolyline(new PolylineOptions()
+                .addAll(polylinePoints)
+                .color(getResources().getColor(R.color.polyline_color)));
+    }
+
+    private void drawPolygon() {
+        if (polygon != null) {
+            // remove existing polygon from map and add new polygon with updated points
+            polygon.remove();
+        }
+        polygon = googleMap.addPolygon(new PolygonOptions()
+                .addAll(polylinePoints)
+                .strokeColor(getResources().getColor(R.color.polyline_color))
+                .fillColor(getResources().getColor(R.color.polygon_fill_color)));
+        polygon.setTag("User Selection");
     }
 }

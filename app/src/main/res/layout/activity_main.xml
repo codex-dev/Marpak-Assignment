@@ -1,9 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:id="@+id/map"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    map:uiZoomControls="true"
-    map:mapType="normal"/>
+    tools:context=".MainActivity">
+
+    <fragment
+        android:id="@+id/fragMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        map:cameraTargetLat="-33.796923"
+        map:cameraTargetLng="150.922433"
+        map:cameraZoom="10"
+        map:layout_constraintBottom_toTopOf="@id/button_layout"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent"
+        map:mapType="normal"
+        map:uiCompass="false"
+        map:uiRotateGestures="false"
+        map:uiScrollGestures="false"
+        map:uiTiltGestures="false"
+        map:uiZoomControls="false"
+        map:uiZoomGestures="true" />
+
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="10dp"
+
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btnDrawPolygon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btn_active"
+            android:text="@string/start_drawing_polygon"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btnDrawCrossLine"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btn_active"
+            android:text="@string/start_drawing_cross_line"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btnDivideCrossLine"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btn_active"
+            android:text="@string/divide_cross_line"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btnClearDrawings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btn_clear"
+            android:text="@string/clear_drawings"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

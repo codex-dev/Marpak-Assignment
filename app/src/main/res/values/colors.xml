@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="btn_clear">#FF0000</color>
+    <color name="btn_active">#2196F3</color>
+    <color name="polyline_color">#FF34CFEB</color>
+    <color name="polygon_fill_color">#660000FF</color>
+    <color name="cross_line_divider_color">#CDDC39</color>
 </resources>

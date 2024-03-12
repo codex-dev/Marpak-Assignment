@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.marpak.gmpolygon"
-        minSdk 19
+        minSdk 21
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -25,7 +25,8 @@ android {
     }
 
     buildFeatures {
-        buildConfig true
+        buildConfig = true
+        viewBinding = true
     }
 
     secrets {

@@ -1,0 +1,5 @@
+package com.marpak.gmpolygon.enums;
+
+public enum ButtonAction {
+    CLEAR_DRAWINGS, START_DRAWING_SHAPE, STOP_DRAWING_SHAPE, START_DRAWING_CROSS_LINE, STOP_DRAWING_CROSS_LINE, DIVIDE_CROSS_LINE
+}

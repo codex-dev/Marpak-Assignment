@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Marpak GM Assignment</string>
+    <string name="start_drawing_polygon">Start Drawing Shape</string>
+    <string name="stop_drawing_polygon">Stop Drawing Shape</string>
+    <string name="start_drawing_cross_line">Start Drawing Cross Line</string>
+    <string name="stop_drawing_cross_line">Stop Drawing Cross Line</string>
+    <string name="divide_cross_line">Divide Cross Line</string>
+    <string name="clear_drawings">Clear Drawings</string>
 </resources>

@@ -12,6 +12,7 @@ public class ButtonPalette {
     private final Button btnDrawPolygon;
     private final Button btnDrawCrossLine;
     private final Button btnDivideCrossLine;
+    private final Button btnResizePolygon;
 
     private ButtonAction currentAction;
 
@@ -20,6 +21,7 @@ public class ButtonPalette {
         btnDrawPolygon = buttonLayout.findViewById(R.id.btnDrawPolygon);
         btnDrawCrossLine = buttonLayout.findViewById(R.id.btnDrawCrossLine);
         btnDivideCrossLine = buttonLayout.findViewById(R.id.btnDivideCrossLine);
+        btnResizePolygon = buttonLayout.findViewById(R.id.btnResizePolygon);
 
         currentAction = ButtonAction.CLEAR_DRAWINGS;
         updateButtonLayout();
@@ -41,6 +43,7 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.VISIBLE);
                 btnDrawCrossLine.setVisibility(View.GONE);
                 btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.GONE);
                 btnClearDrawings.setVisibility(View.GONE);
 
                 btnDrawPolygon.setText(R.string.start_drawing_polygon);
@@ -50,6 +53,7 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.VISIBLE);
                 btnDrawCrossLine.setVisibility(View.GONE);
                 btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.GONE);
                 btnClearDrawings.setVisibility(View.VISIBLE);
 
                 btnDrawPolygon.setText(R.string.stop_drawing_polygon);
@@ -59,6 +63,7 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.GONE);
                 btnDrawCrossLine.setVisibility(View.VISIBLE);
                 btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.GONE);
                 btnClearDrawings.setVisibility(View.VISIBLE);
 
                 btnDrawCrossLine.setText(R.string.start_drawing_cross_line);
@@ -68,6 +73,7 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.GONE);
                 btnDrawCrossLine.setVisibility(View.VISIBLE);
                 btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.GONE);
                 btnClearDrawings.setVisibility(View.VISIBLE);
 
                 btnDrawCrossLine.setText(R.string.stop_drawing_cross_line);
@@ -77,6 +83,7 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.GONE);
                 btnDrawCrossLine.setVisibility(View.GONE);
                 btnDivideCrossLine.setVisibility(View.VISIBLE);
+                btnResizePolygon.setVisibility(View.GONE);
                 btnClearDrawings.setVisibility(View.VISIBLE);
 
                 break;
@@ -85,9 +92,30 @@ public class ButtonPalette {
                 btnDrawPolygon.setVisibility(View.GONE);
                 btnDrawCrossLine.setVisibility(View.GONE);
                 btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.VISIBLE);
                 btnClearDrawings.setVisibility(View.VISIBLE);
 
+                btnResizePolygon.setText(R.string.start_resizing_polygon);
+
                 break;
+
+            case START_RESIZING_SHAPE:
+                btnDrawPolygon.setVisibility(View.GONE);
+                btnDrawCrossLine.setVisibility(View.GONE);
+                btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.VISIBLE);
+                btnClearDrawings.setVisibility(View.VISIBLE);
+
+                btnResizePolygon.setText(R.string.stop_resizing_polygon);
+
+                break;
+
+            case STOP_RESIZING_SHAPE:
+                btnDrawPolygon.setVisibility(View.GONE);
+                btnDrawCrossLine.setVisibility(View.GONE);
+                btnDivideCrossLine.setVisibility(View.GONE);
+                btnResizePolygon.setVisibility(View.GONE);
+                btnClearDrawings.setVisibility(View.VISIBLE);
         }
     }
 }

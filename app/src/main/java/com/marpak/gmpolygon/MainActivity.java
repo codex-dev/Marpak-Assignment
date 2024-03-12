@@ -9,7 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -20,13 +23,15 @@ import com.marpak.gmpolygon.enums.ButtonAction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
 
     private GoogleMap googleMap;
     private GoogleMap.OnMapClickListener mapClickListener;
-    private final List<LatLng> polylinePoints = new ArrayList<>();
+    private final List<LatLng> polygonPoints = new ArrayList<>();
+    private final List<LatLng> crossLinePoints = new ArrayList<>();
     private Polyline polyline;
     private Polygon polygon;
+    private PolygonOptions polygonOptions;
 
     private ActivityMainBinding binding;
     private ButtonPalette buttonPalette;
@@ -52,25 +57,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
-
-        mapClickListener = this::addPoint;
+        googleMap.setOnMarkerDragListener(this);
+        mapClickListener = new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+                if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_SHAPE) {
+                    addPoint(latLng, polygonPoints);
+                } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_CROSS_LINE) {
+                    addPoint(latLng, crossLinePoints);
+                }
+            }
+        };
 
         binding.btnDrawPolygon.setOnClickListener(view -> {
             if (buttonPalette.getCurrentAction() == ButtonAction.CLEAR_DRAWINGS) {
                 buttonPalette.setAction(ButtonAction.START_DRAWING_SHAPE);
 
                 // start collecting click points
-                polylinePoints.clear();
                 googleMap.setOnMapClickListener(mapClickListener);
 
             } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_SHAPE) {
                 // stop collecting click points and draw polygon
-                if(polylinePoints.size() >=3) {
+                if (polygonPoints.size() >= 3) {
                     drawPolygon();
 
                     buttonPalette.setAction(ButtonAction.STOP_DRAWING_SHAPE);
 
-                    polylinePoints.clear();
                     googleMap.setOnMapClickListener(null);
                 }
             }
@@ -81,50 +93,68 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 buttonPalette.setAction(ButtonAction.START_DRAWING_CROSS_LINE);
 
                 // start collecting click points
-                polylinePoints.clear();
                 googleMap.setOnMapClickListener(mapClickListener);
 
             } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_CROSS_LINE) {
                 // stop collecting click points and draw cross line
-                if(polylinePoints.size() >=2) {
+                if (polygonPoints.size() >= 2) {
                     buttonPalette.setAction(ButtonAction.STOP_DRAWING_CROSS_LINE);
 
-                    polylinePoints.clear();
                     googleMap.setOnMapClickListener(null);
                 }
             }
         });
 
         binding.btnDivideCrossLine.setOnClickListener(view -> {
-            if (buttonPalette.getCurrentAction() == ButtonAction.STOP_DRAWING_CROSS_LINE) {
-                // get user input via an prompt
-                InputPromptDialog.showInputDialog(MainActivity.this,
-                        getResources().getString(R.string.prompt_dialog_title),
-                        getResources().getString(R.string.prompt_dialog_description),
-                        userInput -> {
-                    // divide the cross line
-                    buttonPalette.setAction(ButtonAction.DIVIDE_CROSS_LINE);
-                }, () -> {
+            // get user input via an prompt
+            InputPromptDialog.showInputDialog(MainActivity.this,
+                    getResources().getString(R.string.prompt_dialog_title),
+                    getResources().getString(R.string.prompt_dialog_description),
+                    userInput -> {
+                        // divide the cross line
+                        buttonPalette.setAction(ButtonAction.DIVIDE_CROSS_LINE);
+                    }, () -> {
 
-                });
+                    });
+        });
+
+        binding.btnResizePolygon.setOnClickListener(view -> {
+            if (buttonPalette.getCurrentAction() == ButtonAction.DIVIDE_CROSS_LINE) {
+                // TODO show markers on the corners of the polygon, let user drag those and resize it
+                for (int index = 0; index < polygonPoints.size(); index++) {
+                    Marker marker = googleMap.addMarker(new MarkerOptions()
+                            .position(polygonPoints.get(index))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                            .draggable(true));
+                    if (marker != null) marker.setTitle(String.valueOf(index));
+                }
+
+                buttonPalette.setAction(ButtonAction.START_RESIZING_SHAPE);
+            } else if (buttonPalette.getCurrentAction() == ButtonAction.START_RESIZING_SHAPE) {
+                // hide markers on the map
+                googleMap.clear();
+                googleMap.addPolygon(polygonOptions);
+                buttonPalette.setAction(ButtonAction.STOP_RESIZING_SHAPE);
             }
         });
 
         binding.btnClearDrawings.setOnClickListener(view -> {
-            polygon.remove();
-            polyline.remove();
+            googleMap.clear();
+
+            polygonPoints.clear();
+            crossLinePoints.clear();
 
             buttonPalette.setAction(ButtonAction.CLEAR_DRAWINGS);
         });
     }
 
-    private void addPoint(LatLng latLng) {
-        polylinePoints.add(latLng);
+    private void addPoint(LatLng latLng, List<LatLng> pointsList) {
+        pointsList.add(latLng);
         if (polyline != null) {
             // remove existing polyline from map and add new polyline with updated points
             polyline.remove();
         }
-        polyline = googleMap.addPolyline(new PolylineOptions().addAll(polylinePoints).color(getResources().getColor(R.color.polyline_color)));
+        polyline = googleMap.addPolyline(new PolylineOptions().addAll(pointsList).color(getResources().getColor(R.color.polyline_color)));
     }
 
     private void drawPolygon() {
@@ -132,7 +162,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // remove existing polygon from map and add new polygon with updated points
             polygon.remove();
         }
-        polygon = googleMap.addPolygon(new PolygonOptions().addAll(polylinePoints).strokeColor(getResources().getColor(R.color.polyline_color)).fillColor(getResources().getColor(R.color.polygon_fill_color)));
+        polygonOptions = new PolygonOptions().addAll(polygonPoints).strokeColor(getResources()
+                .getColor(R.color.polyline_color)).fillColor(getResources().getColor(R.color.polygon_fill_color));
+        polygon = googleMap.addPolygon(polygonOptions);
         polygon.setTag("User Selection");
+    }
+
+    @Override
+    public void onMarkerDrag(@NonNull Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(@NonNull Marker marker) {
+        polygonPoints.set(Integer.parseInt(marker.getTitle()), marker.getPosition());
+        drawPolygon();
+    }
+
+    @Override
+    public void onMarkerDragStart(@NonNull Marker marker) {
+
     }
 }

@@ -30,18 +30,15 @@ android {
     }
 
     secrets {
-        // Optionally specify a different file name containing your secrets.
-        // The plugin defaults to "local.properties"
+        // specify a different file instead local.properties to contain secrets.
         propertiesFileName = "secrets.properties"
 
-        // A properties file containing default secret values. This file can be
-        // checked in version control.
+        // properties file containing default secret values.
         defaultPropertiesFileName = "local.defaults.properties"
 
-        // Configure which keys should be ignored by the plugin by providing regular expressions.
-        // "sdk.dir" is ignored by default.
-        ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
-        ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
+        // keys which should be ignored by the plugin in addition to sdk.dir which is ignored by default.
+        ignoreList.add("keyToIgnore")
+        ignoreList.add("sdk.*")
     }
 
     compileOptions {

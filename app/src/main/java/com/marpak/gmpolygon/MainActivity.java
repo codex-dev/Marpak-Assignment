@@ -40,8 +40,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(view);
 
         // Get a handle to the fragment and register the callback.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragMap);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragMap);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
@@ -65,12 +64,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 googleMap.setOnMapClickListener(mapClickListener);
 
             } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_SHAPE) {
-                buttonPalette.setAction(ButtonAction.STOP_DRAWING_SHAPE);
-
                 // stop collecting click points and draw polygon
-                drawPolygon();
-                polylinePoints.clear();
-                googleMap.setOnMapClickListener(null);
+                if(polylinePoints.size() >=3) {
+                    drawPolygon();
+
+                    buttonPalette.setAction(ButtonAction.STOP_DRAWING_SHAPE);
+
+                    polylinePoints.clear();
+                    googleMap.setOnMapClickListener(null);
+                }
             }
         });
 
@@ -83,18 +85,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 googleMap.setOnMapClickListener(mapClickListener);
 
             } else if (buttonPalette.getCurrentAction() == ButtonAction.START_DRAWING_CROSS_LINE) {
-                buttonPalette.setAction(ButtonAction.STOP_DRAWING_CROSS_LINE);
-
                 // stop collecting click points and draw cross line
-                polylinePoints.clear();
-                googleMap.setOnMapClickListener(null);
+                if(polylinePoints.size() >=2) {
+                    buttonPalette.setAction(ButtonAction.STOP_DRAWING_CROSS_LINE);
+
+                    polylinePoints.clear();
+                    googleMap.setOnMapClickListener(null);
+                }
             }
         });
 
         binding.btnDivideCrossLine.setOnClickListener(view -> {
             if (buttonPalette.getCurrentAction() == ButtonAction.STOP_DRAWING_CROSS_LINE) {
-                // TODO get user input via an prompt and divide the cross line
-                buttonPalette.setAction(ButtonAction.DIVIDE_CROSS_LINE);
+                // get user input via an prompt
+                InputPromptDialog.showInputDialog(MainActivity.this,
+                        getResources().getString(R.string.prompt_dialog_title),
+                        getResources().getString(R.string.prompt_dialog_description),
+                        userInput -> {
+                    // divide the cross line
+                    buttonPalette.setAction(ButtonAction.DIVIDE_CROSS_LINE);
+                }, () -> {
+
+                });
             }
         });
 
@@ -112,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // remove existing polyline from map and add new polyline with updated points
             polyline.remove();
         }
-        polyline = googleMap.addPolyline(new PolylineOptions()
-                .addAll(polylinePoints)
-                .color(getResources().getColor(R.color.polyline_color)));
+        polyline = googleMap.addPolyline(new PolylineOptions().addAll(polylinePoints).color(getResources().getColor(R.color.polyline_color)));
     }
 
     private void drawPolygon() {
@@ -122,10 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // remove existing polygon from map and add new polygon with updated points
             polygon.remove();
         }
-        polygon = googleMap.addPolygon(new PolygonOptions()
-                .addAll(polylinePoints)
-                .strokeColor(getResources().getColor(R.color.polyline_color))
-                .fillColor(getResources().getColor(R.color.polygon_fill_color)));
+        polygon = googleMap.addPolygon(new PolygonOptions().addAll(polylinePoints).strokeColor(getResources().getColor(R.color.polyline_color)).fillColor(getResources().getColor(R.color.polygon_fill_color)));
         polygon.setTag("User Selection");
     }
 }

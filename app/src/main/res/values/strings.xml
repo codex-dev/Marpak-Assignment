@@ -5,11 +5,11 @@
     <string name="start_drawing_cross_line">Start Drawing Cross Line</string>
     <string name="stop_drawing_cross_line">Stop Drawing Cross Line</string>
     <string name="divide_cross_line">Divide Cross Line</string>
-    <string name="clear_drawings">Clear Drawings</string>
-    <string name="prompt_dialog_title">Divide Cross Line</string>
     <string name="start_resizing_polygon">Start Resizing Shape</string>
     <string name="stop_resizing_polygon">Stop Resizing Shape</string>
-    <string name="prompt_dialog_description">Enter number of rows:</string>
+    <string name="prompt_dialog_title">Divide Cross Line</string>
+    <string name="prompt_dialog_description">Enter number of rows you need:</string>
+    <string name="clear_drawings">Clear Drawings</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 </resources>
